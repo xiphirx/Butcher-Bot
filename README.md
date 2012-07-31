@@ -5,7 +5,7 @@ Moderator bot that performs routine tasks on reddit.com/r/Diablo such as the rem
 
 #Setup
 
-Clone and create a file named 'rules.ini' and place it right next to 'autoMod.py'. You will then need to provide moderator credentials, the subreddit, and the last submission's id inside the file like so: 
+Clone and create a file named 'rules.ini' and place it right next to 'auto_mod.py'. You will then need to provide moderator credentials, the subreddit, and the last submission's id inside the file like so: 
 
 ```
 [DEFAULT]
