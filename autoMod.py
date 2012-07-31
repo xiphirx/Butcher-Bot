@@ -36,23 +36,11 @@ class butcherBot:
 			self.config.write(fname)
 
 	def isImage(self, submission):
-<<<<<<< HEAD
-		if self.imageRules[0].match(submission.url):
-			return 1
-		else:
-			img = urllib.urlopen(submission.url)
-			type = img.info()['Content-Type']
-			if type.startswith('image/'):
-				return 1
-		else:
-			return 0
-=======
 		if self.rules["images"].re.match(submission.url):
 			return True
 		img = urllib.request.urlopen(submission.url)
 		type = img.info()['Content-Type']
 		return type.startswith('image/')
->>>>>>> def6da4ce22245ca5cfd440ce5b4cb913cc3ec66
 
 	def hasAcronym(self, submission):
 		return self.acronymRules[0].match(submission.title)
