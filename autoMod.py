@@ -32,12 +32,13 @@ class butcherBot:
 		config.close()
 
 	def isImage(self, submission):
-		img = urllib.urlopen(submission.url)
-		type = img.info()['Content-Type']
-		if type.startswith('image/'):
+		if self.imageRules[0].match(submission.url):
 			return 1
-		elif self.imageRules[0].match(submission.url):
-			return 1
+		else:
+			img = urllib.urlopen(submission.url)
+			type = img.info()['Content-Type']
+			if type.startswith('image/'):
+				return 1
 		else:
 			return 0
 
