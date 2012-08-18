@@ -34,7 +34,7 @@ class Rule:
 
     def do_actions(self, submission):
         if dryrun:
-            log(1, "Dry run. Not acting.")
+            log(1, "Dry run. Not acting. %s" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
         if "comment" in self.actions:
