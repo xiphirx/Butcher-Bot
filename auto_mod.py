@@ -161,11 +161,10 @@ class ButcherBot:
 
             first = True
             if len(self.rules_comments) > 0:
-                log(3, "now processing comments")
                 for c in sub.get_comments(limit=1000):
                     if first:
                         #TODO can PRAW just give us the comments in chrono order?
-                        self.config.set("DEFAULT", "last_comment_time", str(c.created_utc))
+                        self.config.set("DEFAULT", "last_comment_time", str(int(c.created_utc)))
                         first = False
                     if c.created_utc <= self.last_comment_time:
                         log(3, "comment (%s) behind last_time (%s): %s" % (c.created_utc, self.last_comment_time, c))
