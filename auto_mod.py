@@ -203,7 +203,6 @@ class ButcherBot:
                 self.config.set("DEFAULT", "last_item", submissions[0].id)
 
             if len(self.rules_comments) > 0:
-                #coms = sub.get_comments(rname, limit=100)
                 coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
                 for c in coms:
                     for rule in self.rules_comments:
