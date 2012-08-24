@@ -4,6 +4,7 @@ import urllib.parse
 import urllib.request
 import re
 import configparser
+import json
 
 
 dryrun = True
@@ -156,6 +157,35 @@ class ButcherBot:
         with open('rules.ini', 'w') as fname:
             self.config.write(fname)
 
+    def get_comments(self, rname, last_comment):
+        items = []
+        count = 0
+        n = last_comment
+        done = False
+        while True:
+            print("looping %s" % (n))
+            j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "before":n, "uh":self.r.modhash})
+            data = json.loads(j.decode("UTF-8"))
+
+            n = data["data"]["after"]
+            if data["data"]["before"] == None:
+                done = True		# reddit.com won't give us any more records
+
+            items += data["data"]["children"]
+            count += 1
+
+            if done:
+                break
+            if count > 2:
+                break
+
+        oitems = []
+        for i in items:
+            oitems.append(praw.objects.Comment(self.r, i["data"]))
+        log(3, "%d comments to process" % (len(oitems)))
+
+        return oitems
+
 
     def auto_mod(self):
         # main loop
@@ -166,22 +196,22 @@ class ButcherBot:
                 if submission.approved_by:
                     log(2, "Post is already approved")
                     continue
-
                 for rule in self.rules_submissions:
                     rule.apply(submission)
 
-            self.config.set("DEFAULT", "last_item", submissions[0].id)
+            if len(submissions) > 0:
+                self.config.set("DEFAULT", "last_item", submissions[0].id)
 
             if len(self.rules_comments) > 0:
-                coms = sub.get_comments(rname, limit=1000)
+                #coms = sub.get_comments(rname, limit=100)
+                coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
                 for c in coms:
-                    if c.created_utc <= self.last_comment_time:
-                        log(3, "comment (%s) behind last_time (%s): %s" % (c.created_utc, self.last_comment_time, c))
-                        break
-
                     for rule in self.rules_comments:
                         rule.apply(c)
 
+            if len(coms) > 0:
+                self.config.set("DEFAULT", "last_comment_time", str(int(coms[0].created_utc)))
+                self.config.set("DEFAULT", "last_comment", coms[0].name)
 
         self.save_config()
 
