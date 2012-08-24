@@ -85,10 +85,13 @@ class ImageRule(Rule):
         if self.re.match(submission.url):
             return True
         #TODO multithread this
-        img = urllib.request.urlopen(self.HeadRequest(submission.url))
-        type = img.info()['Content-Type']
-        if type.startswith('image/'):
-            return True
+        try:
+            img = urllib.request.urlopen(self.HeadRequest(submission.url))
+            type = img.info()['Content-Type']
+            if type.startswith('image/'):
+                return True
+        except urllib.error.HTTPError:
+            pass #If HTTP error, assume it's not an image. FIXME?
         return False
 
 class TitleRule(Rule):
