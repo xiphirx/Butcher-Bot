@@ -32,22 +32,31 @@ class Rule:
         if self.match(submission):
             log(1, "MATCH %s: %s (%s)" % (self.rname, submission.permalink, submission.title))
             self.do_actions(submission)
+        else:
+            log(3, "NO MATCH %s: %s (%s)" % (self.rname, submission.permalink, submission.title))
 
     def do_actions(self, submission):
         if dryrun:
             log(1, "Dry run. Not acting. %s" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
-        if "comment" in self.actions:
-            log(2, "comment %s" % (submission.permalink))
-            modReply = submission.add_comment(self.rules[rule].comment)
-            modReply.distinguish()
-        if "remove" in self.actions:
-            log(1, "REMOVE %s" % (submission.permalink))
-            submission.remove()
-        if "report" in self.actions:
-            log(2, "REPORT %s" % (submission.permalink))
-            #TODO
+        for a in self.actions:
+            self.action_fns[a](submission)
+
+    def _action_comment(self, submission):
+        log(2, "comment %s" % (submission.permalink))
+        modReply = submission.add_comment(self.rules[rule].comment)
+        modReply.distinguish()
+    def _action_remove(self, submission):
+        log(1, "REMOVE %s" % (submission.permalink))
+        submission.remove()
+    def _action_report(self, submission):
+        log(2, "REPORT %s" % (submission.permalink))
+        submission.report()
+
+    action_fns = {"comment": _action_comment,
+            "remove": _action_remove,
+            "report": _action_report}
 
 class CommentRule(Rule):
     def __init__(self, name):
@@ -61,6 +70,8 @@ class CommentRule(Rule):
         if self.match(comment):
             log(1, "MATCH %s: %s (%s)" % (self.rname, comment.permalink, comment.author))
             self.do_actions(comment)
+        else:
+            log(3, "NO MATCH %s %s" % (self.rname, comment.permalink))
 
 class ImageRule(Rule):
     def match(self, submission):
@@ -68,6 +79,7 @@ class ImageRule(Rule):
             return False  # self-posts can't be images
         if self.re.match(submission.url):
             return True
+        #TODO multithread this
         img = urllib.request.urlopen(submission.url)
         type = img.info()['Content-Type']
         if type.startswith('image/'):
@@ -145,13 +157,8 @@ class ButcherBot:
         # main loop
         for rname in self.reddits:
             sub = self.r.get_subreddit(rname)
-            submissions = sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item"))
-            first = True
+            submissions = list(sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item")))
             for submission in submissions:
-                if first:
-                    self.config.set("DEFAULT", "last_item", submission.id)
-                    first = False
-
                 if submission.approved_by:
                     log(2, "Post is already approved")
                     continue
@@ -159,16 +166,14 @@ class ButcherBot:
                 for rule in self.rules_submissions:
                     rule.apply(submission)
 
-            first = True
+            self.config.set("DEFAULT", "last_item", submissions[0].id)
+
             if len(self.rules_comments) > 0:
-                for c in sub.get_comments(limit=1000):
-                    if first:
-                        #TODO can PRAW just give us the comments in chrono order?
-                        self.config.set("DEFAULT", "last_comment_time", str(int(c.created_utc)))
-                        first = False
+                coms = sub.get_comments(rname, limit=1000)
+                for c in coms:
                     if c.created_utc <= self.last_comment_time:
                         log(3, "comment (%s) behind last_time (%s): %s" % (c.created_utc, self.last_comment_time, c))
-                        continue
+                        break
 
                     for rule in self.rules_comments:
                         rule.apply(c)
