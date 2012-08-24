@@ -210,7 +210,6 @@ class ButcherBot:
                         rule.apply(c)
 
             if len(coms) > 0:
-                self.config.set("DEFAULT", "last_comment_time", str(int(coms[0].created_utc)))
                 self.config.set("DEFAULT", "last_comment", coms[0].name)
 
         self.save_config()
