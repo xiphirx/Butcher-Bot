@@ -74,13 +74,17 @@ class CommentRule(Rule):
             log(3, "NO MATCH %s %s" % (self.rname, comment.permalink))
 
 class ImageRule(Rule):
+    class HeadRequest(urllib.request.Request):
+        def get_method(self):
+            return "HEAD"
+
     def match(self, submission):
-        if submission.domain.lower() == "self." + self.rname.lower():
+        if submission.domain[:5] == "self.":
             return False  # self-posts can't be images
         if self.re.match(submission.url):
             return True
         #TODO multithread this
-        img = urllib.request.urlopen(submission.url)
+        img = urllib.request.urlopen(self.HeadRequest(submission.url))
         type = img.info()['Content-Type']
         if type.startswith('image/'):
             return True
