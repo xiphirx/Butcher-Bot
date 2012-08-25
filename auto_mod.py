@@ -5,6 +5,7 @@ import urllib.request
 import re
 import configparser
 import json
+import time
 
 
 dryrun = True
@@ -12,7 +13,7 @@ loglevel = 3 #0 error, 1 normal activity, 2 verbose activity, 3 debug
 
 def log(lvl, s):
     if lvl <= loglevel:
-        print(s)
+        logfile.write(s)
 
 class Rule:
     def __init__(self, name):
@@ -85,10 +86,13 @@ class ImageRule(Rule):
         if self.re.match(submission.url):
             return True
         #TODO multithread this
-        img = urllib.request.urlopen(self.HeadRequest(submission.url))
-        type = img.info()['Content-Type']
-        if type.startswith('image/'):
-            return True
+        try:
+            img = urllib.request.urlopen(self.HeadRequest(submission.url))
+            type = img.info()['Content-Type']
+            if type.startswith('image/'):
+                return True
+        except urllib.error.HTTPError:
+            pass #If HTTP error, assume it's not an image. FIXME?
         return False
 
 class TitleRule(Rule):
@@ -163,7 +167,7 @@ class ButcherBot:
         n = last_comment
         done = False
         while True:
-            print("looping %s" % (n))
+            log(3, "looping %s" % (n))
             j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "before":n, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
 
@@ -215,8 +219,12 @@ class ButcherBot:
 
 
 def main():
+    logfile = open("/srv/bots/log/butcher.log", "a")
+    start_time = time.time()
     butcher = ButcherBot()
     butcher.auto_mod()
+    log(1, "elapsed time %d" % (time.time() - start_time))
+    logfile.close()
 
 
 if __name__ == '__main__':
