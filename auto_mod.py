@@ -5,6 +5,7 @@ import urllib.request
 import re
 import configparser
 import json
+import time
 
 
 dryrun = True
@@ -219,8 +220,10 @@ class ButcherBot:
 
 def main():
     logfile = open("/srv/bots/log/butcher.log", "a")
+    start_time = time.time()
     butcher = ButcherBot()
     butcher.auto_mod()
+    log(1, "elapsed time %d" % (time.time() - start_time))
     logfile.close()
 
 
