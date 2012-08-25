@@ -24,36 +24,36 @@ class Rule:
         return "<Rule(%s)>" % (self.rname)
 
     def match(self, submission):
-        log(0, "INTERNAL ERROR: %s's rule type does not have a match() function" % (self.rname))
+        log(0, "INTERNAL ERROR: %s's rule type does not have a match() function\n" % (self.rname))
         return False
 
     def apply(self, submission):
         if submission.subreddit.display_name not in self.reddits:
-            log(3, "SKIPPING %s %s" % (self.rname, submission.permalink))
+            log(3, "SKIPPING %s %s\n" % (self.rname, submission.permalink))
             return # Not all rules apply to all subreddits
         if self.match(submission):
-            log(1, "MATCH %s: %s (%s)" % (self.rname, submission.permalink, submission.title))
+            log(1, "MATCH %s: %s (%s)\n" % (self.rname, submission.permalink, submission.title))
             self.do_actions(submission)
         else:
-            log(3, "NO MATCH %s: %s (%s)" % (self.rname, submission.permalink, submission.title))
+            log(3, "NO MATCH %s: %s (%s)\n" % (self.rname, submission.permalink, submission.title))
 
     def do_actions(self, submission):
         if dryrun:
-            log(1, "Dry run. Not acting. %s" % (self.actions))
+            log(1, "Dry run. Not acting. %s\n" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
         for a in self.actions:
             self.action_fns[a](submission)
 
     def _action_comment(self, submission):
-        log(2, "comment %s" % (submission.permalink))
+        log(2, "comment %s\n" % (submission.permalink))
         modReply = submission.add_comment(self.rules[rule].comment)
         modReply.distinguish()
     def _action_remove(self, submission):
-        log(1, "REMOVE %s" % (submission.permalink))
+        log(1, "REMOVE %s\n" % (submission.permalink))
         submission.remove()
     def _action_report(self, submission):
-        log(2, "REPORT %s" % (submission.permalink))
+        log(2, "REPORT %s\n" % (submission.permalink))
         submission.report()
 
     action_fns = {"comment": _action_comment,
@@ -67,13 +67,13 @@ class CommentRule(Rule):
 
     def apply(self, comment):
         if comment.subreddit.display_name not in self.reddits:
-            log(3, "SKIPPING %s %s" % (self.rname, comment.permalink))
+            log(3, "SKIPPING %s %s\n" % (self.rname, comment.permalink))
             return # Not all rules apply to all subreddits
         if self.match(comment):
-            log(1, "MATCH %s: %s (%s)" % (self.rname, comment.permalink, comment.author))
+            log(1, "MATCH %s: %s (%s)\n" % (self.rname, comment.permalink, comment.author))
             self.do_actions(comment)
         else:
-            log(3, "NO MATCH %s %s" % (self.rname, comment.permalink))
+            log(3, "NO MATCH %s %s\n" % (self.rname, comment.permalink))
 
 class ImageRule(Rule):
     class HeadRequest(urllib.request.Request):
@@ -137,14 +137,14 @@ class ButcherBot:
             self.rules.append(rule)
             for sr in self.config.get(s, "reddits").split():
                 self.reddits.add(sr)
-        log(3, "rules: %s" % (self.rules))
-        log(3, "reddits: %s" % (self.reddits))
+        log(3, "rules: %s\n" % (self.rules))
+        log(3, "reddits: %s\n" % (self.reddits))
 
         self.last_comment_time = self.config.getint("DEFAULT", "last_comment_time")
 
         # Log in
         self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
-        log(2, 'Logging in as %s...' % (self.config.get("DEFAULT", "user")))
+        log(3, 'Logging in as %s...\n' % (self.config.get("DEFAULT", "user")))
         self.r.login(self.config.get("DEFAULT", "user"), self.config.get("DEFAULT", "pass"))
 
         # Split comment and submission rules into separate lists for later efficiency
@@ -167,7 +167,7 @@ class ButcherBot:
         n = last_comment
         done = False
         while True:
-            log(3, "looping %s" % (n))
+            log(3, "looping %s\n" % (n))
             j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "before":n, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
 
@@ -186,7 +186,7 @@ class ButcherBot:
         oitems = []
         for i in items:
             oitems.append(praw.objects.Comment(self.r, i["data"]))
-        log(3, "%d comments to process" % (len(oitems)))
+        log(3, "%d comments to process\n" % (len(oitems)))
 
         return oitems
 
@@ -198,7 +198,7 @@ class ButcherBot:
             submissions = list(sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item")))
             for submission in submissions:
                 if submission.approved_by:
-                    log(2, "Post is already approved")
+                    log(2, "Post is already approved\n")
                     continue
                 for rule in self.rules_submissions:
                     rule.apply(submission)
@@ -219,11 +219,13 @@ class ButcherBot:
 
 
 def main():
+    global logfile
     logfile = open("/srv/bots/log/butcher.log", "a")
+    log(1, "starting at %d\n" % (time.time()))
     start_time = time.time()
     butcher = ButcherBot()
     butcher.auto_mod()
-    log(1, "elapsed time %d" % (time.time() - start_time))
+    log(1, "elapsed time %d\n" % (time.time() - start_time))
     logfile.close()
 
 
