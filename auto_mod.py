@@ -65,15 +65,18 @@ class CommentRule(Rule):
         super().__init__(name)
         self.comment_type = True
 
+    def make_url(self, c):
+        return "http://www.reddit.com/r/%s/%s/_/%s/" % (c["subreddit"], c["link_id"][3:], c["id"])
+
     def apply(self, comment):
-        if comment.subreddit.display_name not in self.reddits:
-            log(3, "SKIPPING %s %s\n" % (self.rname, comment.permalink))
+        if comment["subreddit"] not in self.reddits:
+            log(3, "SKIPPING %s %s\n" % (self.rname, self.make_url(comment)))
             return # Not all rules apply to all subreddits
         if self.match(comment):
-            log(1, "MATCH %s: %s (%s)\n" % (self.rname, comment.permalink, comment.author))
-            self.do_actions(comment)
+            log(1, "MATCH %s: %s (%s)\n" % (self.rname, self.make_url(comment), comment["author"]))
+            self.do_actions(praw.objects.Comment(self.r, comment))
         else:
-            log(3, "NO MATCH %s %s\n" % (self.rname, comment.permalink))
+            log(3, "NO MATCH %s %s\n" % (self.rname, self.make_url(comment)))
 
 class ImageRule(Rule):
     class HeadRequest(urllib.request.Request):
@@ -105,7 +108,7 @@ class UserRule(Rule):
 
 class CommentUserRule(CommentRule):
     def match(self, comment):
-        return self.re.match(comment.author.name)
+        return self.re.match(comment["author"])
 
 class ButcherBot:
     class rule:
@@ -183,12 +186,8 @@ class ButcherBot:
             if count > 2:
                 break
 
-        oitems = []
-        for i in items:
-            oitems.append(praw.objects.Comment(self.r, i["data"]))
-        log(3, "%d comments to process\n" % (len(oitems)))
-
-        return oitems
+        log(3, "%d comments to process\n" % (len(items)))
+        return items
 
 
     def auto_mod(self):
@@ -210,10 +209,10 @@ class ButcherBot:
                 coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
                 for c in coms:
                     for rule in self.rules_comments:
-                        rule.apply(c)
+                        rule.apply(c["data"])
 
             if len(coms) > 0:
-                self.config.set("DEFAULT", "last_comment", coms[0].name)
+                self.config.set("DEFAULT", "last_comment", coms[0]["data"]["name"])
 
         self.save_config()
 
