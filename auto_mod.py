@@ -143,8 +143,6 @@ class ButcherBot:
         log(3, "rules: %s\n" % (self.rules))
         log(3, "reddits: %s\n" % (self.reddits))
 
-        self.last_comment_time = self.config.getint("DEFAULT", "last_comment_time")
-
         # Log in
         self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
         log(3, 'Logging in as %s...\n' % (self.config.get("DEFAULT", "user")))
