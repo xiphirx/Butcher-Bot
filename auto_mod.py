@@ -66,7 +66,7 @@ class CommentRule(Rule):
         self.comment_type = True
 
     def make_url(self, c):
-        return "http://www.reddit.com/r/%s/%s/_/%s/" % (c["subreddit"], c["link_id"][3:], c["id"])
+        return "http://www.reddit.com/r/%s/comments/%s/_/%s" % (c["subreddit"], c["link_id"][3:], c["id"])
 
     def apply(self, comment):
         if comment["subreddit"] not in self.reddits:
