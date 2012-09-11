@@ -42,8 +42,12 @@ class Rule:
             log(1, "Dry run. Not acting. %s\n" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
-        for a in self.actions:
-            self.action_fns[a](submission)
+        if "comment" in self.actions:
+            self._action_comment(submission)
+        if "remove" in self.actions:
+            self._action_remove(submission)
+        if "report" in self.actions:
+            self._action_report(submission)
 
     def _action_comment(self, submission):
         log(2, "comment %s\n" % (submission.permalink))
