@@ -13,7 +13,7 @@ loglevel = 3 #0 error, 1 normal activity, 2 verbose activity, 3 debug
 
 def log(lvl, s):
     if lvl <= loglevel:
-        logfile.write(s)
+        logfile.write(s.encode("utf-8"))
 
 class Rule:
     def __init__(self, name):
