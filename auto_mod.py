@@ -124,7 +124,7 @@ class ButcherBot:
     def __init__(self):
         # Load configuration
         self.config = configparser.SafeConfigParser()
-        self.config.read("rules.ini")
+        self.config.read("/srv/bots/Butcher-Bot/rules.ini")
 
         self.reddits = set()
         self.rules = []
@@ -165,7 +165,7 @@ class ButcherBot:
 
 
     def save_config(self):
-        with open('rules.ini', 'w') as fname:
+        with open('/srv/bots/Butcher-Bot/rules.ini', 'w') as fname:
             self.config.write(fname)
 
     def get_comments(self, rname, last_comment):
