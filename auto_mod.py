@@ -86,7 +86,7 @@ class ImageRule(Rule):
     def match(self, submission):
         if submission.domain[:5] == "self.":
             return False  # self-posts can't be images
-        if self.re.match(submission.url):
+        if self.re.search(submission.url):
             return True
         #TODO multithread this
         try:
