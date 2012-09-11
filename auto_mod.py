@@ -47,7 +47,7 @@ class Rule:
 
     def _action_comment(self, submission):
         log(2, "comment %s\n" % (submission.permalink))
-        modReply = submission.add_comment(self.rules[rule].comment)
+        modReply = submission.add_comment(self.comment)
         modReply.distinguish()
     def _action_remove(self, submission):
         log(1, "REMOVE %s\n" % (submission.permalink))
