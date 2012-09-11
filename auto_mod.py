@@ -190,7 +190,7 @@ class ButcherBot:
             if count > 2:
                 break
 
-        log(3, "%d comments to process\n" % (len(items)))
+        log(2, "%d comments to process\n" % (len(items)))
         return items
 
 
