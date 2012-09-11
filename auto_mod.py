@@ -201,7 +201,7 @@ class ButcherBot:
             submissions = list(sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item")))
             for submission in submissions:
                 if submission.approved_by:
-                    log(2, "Post is already approved\n")
+                    log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
                     continue
                 for rule in self.rules_submissions:
                     rule.apply(submission)
