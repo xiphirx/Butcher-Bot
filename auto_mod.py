@@ -217,7 +217,7 @@ class ButcherBot:
 
 def main():
     global logfile
-    logfile = open("/srv/bots/log/butcher.log", "a")
+    logfile = open("/srv/bots/log/butcher.log", "ab")
     log(1, "starting at %d\n" % (time.time()))
     start_time = time.time()
     butcher = ButcherBot()
