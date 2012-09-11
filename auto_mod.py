@@ -96,6 +96,8 @@ class ImageRule(Rule):
                 return True
         except urllib.error.HTTPError:
             pass #If HTTP error, assume it's not an image. FIXME?
+        except urllib.error.URLError:
+            pass
         return False
 
 class TitleRule(Rule):
