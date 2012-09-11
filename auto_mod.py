@@ -102,15 +102,15 @@ class ImageRule(Rule):
 
 class TitleRule(Rule):
     def match(self, submission):
-        return self.re.match(submission.title)
+        return self.re.search(submission.title)
 
 class UserRule(Rule):
     def match(self, submission):
-        return self.re.match(submission.author.name)
+        return self.re.search(submission.author.name)
 
 class CommentUserRule(CommentRule):
     def match(self, comment):
-        return self.re.match(comment["author"])
+        return self.re.search(comment["author"])
 
 class ButcherBot:
     class rule:
