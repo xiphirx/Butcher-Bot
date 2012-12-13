@@ -139,7 +139,7 @@ class ButcherBot:
             else:
                 rule = Rule(s) # This will probably cause a runtime error. Good.
             rule.re = re.compile(self.config.get(s, "re"))
-            rule.comment = self.config.get(s, "comment")
+            rule.comment = self.config.get(s, "comment").replace("\\n", "\n")
             rule.distinguish = self.config.get(s, "distinguish").lower() in ["true", "1", "t", "y", "yes", "on"]
             rule.reddits = self.config.get(s, "reddits").split()
             rule.actions = self.config.get(s, "actions").split()
