@@ -1,7 +1,21 @@
 Butcher Bot
 ===================================
 
-Moderator bot that performs routine tasks on reddit.com/r/Diablo such as the removal of images/memes and bandwagon-esque titles.
+Butcher-Bot is a moderator bot for reddit, originally developed for use on /r/diablo. It is designed to be lighter, faster, and more flexible than other available modbots.
+
+#Features
+
+Butcher-Bot monitors one or more subreddits and performs _actions_ upon the satisfaction of _rules_.
+
+rules currently implemented
+* submission image (regexp and content-type)
+* submission title regexp
+* comment username regexp
+
+actions currently implemented
+* post comment reply, optionally distinguish (distinguish requires moderator privileges)
+* remove submission or comment (requires moderator)
+* report submission or comment
 
 #Setup
 
