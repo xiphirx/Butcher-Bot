@@ -8,13 +8,13 @@ Butcher-Bot is a moderator bot for reddit, originally developed for use on /r/di
 Butcher-Bot monitors one or more subreddits and performs _actions_ upon the satisfaction of _rules_.
 
 rules currently implemented
-* submission image (regexp and content-type)
-* submission title regexp
-* comment username regexp
+* submission is image (regexp and content-type)
+* submission title match
+* comment username match
 
 actions currently implemented
-* post comment reply, optionally distinguish (distinguish requires moderator privileges)
-* remove submission or comment (requires moderator)
+* post comment reply (distinguish requires moderator privileges)
+* remove submission or comment (requires moderator privileges)
 * report submission or comment
 
 #Setup
