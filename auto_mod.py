@@ -97,8 +97,8 @@ class ImageRule(Rule):
         #TODO multithread this
         try:
             img = urllib.request.urlopen(self.HeadRequest(submission.url))
-            type = img.info()['Content-Type']
-            if type.startswith('image/'):
+            contenttype = img.info()['Content-Type']
+            if contenttype != None and contenttype.startswith('image/'):
                 return True
         except urllib.error.HTTPError:
             pass #If HTTP error, assume it's not an image. FIXME?
