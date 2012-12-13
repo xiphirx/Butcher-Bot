@@ -13,7 +13,7 @@ loglevel = 3 #0 error, 1 normal activity, 2 verbose activity, 3 debug
 
 def log(lvl, s):
     if lvl <= loglevel:
-        logfile.write(s)
+        logfile.write(s.encode("utf-8"))
 
 class Rule:
     def __init__(self, name):
@@ -42,12 +42,18 @@ class Rule:
             log(1, "Dry run. Not acting. %s\n" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
-        for a in self.actions:
-            self.action_fns[a](submission)
+        #for a in self.actions:
+            #self.action_fns[a](submission)
+        if "comment" in self.actions:
+            self._action_comment(submission)
+        if "remove" in self.actions:
+            self._action_remove(submission)
+        if "report" in self.actions:
+            self._action_report(submission)
 
     def _action_comment(self, submission):
-        log(2, "comment %s\n" % (submission.permalink))
-        modReply = submission.add_comment(self.rules[rule].comment)
+        log(2, "COMMENT %s\n" % (submission.permalink))
+        modReply = submission.add_comment(self.comment)
         modReply.distinguish()
     def _action_remove(self, submission):
         log(1, "REMOVE %s\n" % (submission.permalink))
@@ -86,29 +92,31 @@ class ImageRule(Rule):
     def match(self, submission):
         if submission.domain[:5] == "self.":
             return False  # self-posts can't be images
-        if self.re.match(submission.url):
+        if self.re.search(submission.url):
             return True
         #TODO multithread this
         try:
             img = urllib.request.urlopen(self.HeadRequest(submission.url))
-            type = img.info()['Content-Type']
-            if type.startswith('image/'):
+            contenttype = img.info()['Content-Type']
+            if contenttype != None and contenttype.startswith('image/'):
                 return True
         except urllib.error.HTTPError:
             pass #If HTTP error, assume it's not an image. FIXME?
+        except urllib.error.URLError:
+            pass
         return False
 
 class TitleRule(Rule):
     def match(self, submission):
-        return self.re.match(submission.title)
+        return self.re.search(submission.title)
 
 class UserRule(Rule):
     def match(self, submission):
-        return self.re.match(submission.author.name)
+        return self.re.search(submission.author.name)
 
 class CommentUserRule(CommentRule):
     def match(self, comment):
-        return self.re.match(comment["author"])
+        return self.re.search(comment["author"], re.IGNORECASE)
 
 class ButcherBot:
     class rule:
@@ -118,7 +126,9 @@ class ButcherBot:
     def __init__(self):
         # Load configuration
         self.config = configparser.SafeConfigParser()
-        self.config.read("rules.ini")
+        self.config.read("/srv/bots/Butcher-Bot/rules.ini")
+
+        self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
 
         self.reddits = set()
         self.rules = []
@@ -130,10 +140,11 @@ class ButcherBot:
                 rule = TitleRule(s)
             elif rtype == "comment_user":
                 rule = CommentUserRule(s)
+                rule.r = self.r	#FIXME do this more elegantly
             else:
                 rule = Rule(s) # This will probably cause a runtime error. Good.
             rule.re = re.compile(self.config.get(s, "re"))
-            rule.comment = self.config.get(s, "comment")
+            rule.comment = self.config.get(s, "comment").replace("\\n", "\n")
             rule.distinguish = self.config.get(s, "distinguish").lower() in ["true", "1", "t", "y", "yes", "on"]
             rule.reddits = self.config.get(s, "reddits").split()
             rule.actions = self.config.get(s, "actions").split()
@@ -144,7 +155,6 @@ class ButcherBot:
         log(3, "reddits: %s\n" % (self.reddits))
 
         # Log in
-        self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
         log(3, 'Logging in as %s...\n' % (self.config.get("DEFAULT", "user")))
         self.r.login(self.config.get("DEFAULT", "user"), self.config.get("DEFAULT", "pass"))
 
@@ -159,7 +169,7 @@ class ButcherBot:
 
 
     def save_config(self):
-        with open('rules.ini', 'w') as fname:
+        with open('/srv/bots/Butcher-Bot/rules.ini', 'w') as fname:
             self.config.write(fname)
 
     def get_comments(self, rname, last_comment):
@@ -181,10 +191,15 @@ class ButcherBot:
 
             if done:
                 break
-            if count > 2:
+            if count > 4:
                 break
 
-        log(3, "%d comments to process\n" % (len(items)))
+        if len(items) == 0:
+            j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
+            data = json.loads(j.decode("UTF-8"))
+            items += data["data"]["children"]
+
+        self.num_comments = len(items)
         return items
 
 
@@ -192,15 +207,22 @@ class ButcherBot:
         # main loop
         for rname in self.reddits:
             sub = self.r.get_subreddit(rname)
-            submissions = list(sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item")))
+            submissions = list(sub.get_new_by_date(limit=100, place_holder=self.config.get("DEFAULT", "last_item")))
+            #j = self.r._request(page_url="http://www.reddit.com/r/%s/new.json" % (rname), url_data={"limit":100, "before":self.config.get("DEFAULT", "last_item"), "uh":self.r.modhash})
+            #data = json.loads(j.decode("UTF-8"))
+            #submissions = data["data"]["children"]
+            #for s in submissions:
             for submission in submissions:
+                #submission = praw.objects.Submission(self.r, s["data"])
                 if submission.approved_by:
-                    log(2, "Post is already approved\n")
+                    log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
                     continue
                 for rule in self.rules_submissions:
                     rule.apply(submission)
 
-            if len(submissions) > 0:
+            self.num_submissions = len(submissions)
+            if self.num_submissions > 0:
+                #self.config.set("DEFAULT", "last_item", "t3_"+submissions[0]["data"]["id"])
                 self.config.set("DEFAULT", "last_item", submissions[0].id)
 
             if len(self.rules_comments) > 0:
@@ -217,12 +239,11 @@ class ButcherBot:
 
 def main():
     global logfile
-    logfile = open("/srv/bots/log/butcher.log", "a")
-    log(1, "starting at %d\n" % (time.time()))
+    logfile = open("/srv/bots/log/butcher.log", "ab")
     start_time = time.time()
     butcher = ButcherBot()
     butcher.auto_mod()
-    log(1, "elapsed time %d\n" % (time.time() - start_time))
+    log(1, "%d - %d seconds - %d submissions - %d comments\n" % (start_time, time.time() - start_time, butcher.num_submissions, butcher.num_comments))
     logfile.close()
 
 
