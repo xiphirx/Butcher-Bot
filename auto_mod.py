@@ -42,6 +42,8 @@ class Rule:
             log(1, "Dry run. Not acting. %s\n" % (self.actions))
             return
         # Use "none" in the config file if you just want to log the match without acting.
+        #for a in self.actions:
+            #self.action_fns[a](submission)
         if "comment" in self.actions:
             self._action_comment(submission)
         if "remove" in self.actions:
@@ -50,7 +52,7 @@ class Rule:
             self._action_report(submission)
 
     def _action_comment(self, submission):
-        log(2, "comment %s\n" % (submission.permalink))
+        log(2, "COMMENT %s\n" % (submission.permalink))
         modReply = submission.add_comment(self.comment)
         modReply.distinguish()
     def _action_remove(self, submission):
@@ -187,7 +189,7 @@ class ButcherBot:
 
             if done:
                 break
-            if count > 2:
+            if count > 4:
                 break
 
         log(2, "%d comments to process\n" % (len(items)))
