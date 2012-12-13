@@ -194,7 +194,6 @@ class ButcherBot:
             if count > 4:
                 break
 
-        log(2, "%d comments to process\n" % (len(items)))
         if len(items) == 0:
             j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
@@ -241,11 +240,10 @@ class ButcherBot:
 def main():
     global logfile
     logfile = open("/srv/bots/log/butcher.log", "ab")
-    log(1, "starting at %d\n" % (time.time()))
     start_time = time.time()
     butcher = ButcherBot()
     butcher.auto_mod()
-    log(1, "elapsed time %d\n" % (time.time() - start_time))
+    log(1, "%d - %d seconds - %d submissions - %d comments\n" % (start_time, time.time() - start_time, butcher.num_submissions, butcher.num_comments))
     logfile.close()
 
 
