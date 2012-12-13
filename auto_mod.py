@@ -209,7 +209,12 @@ class ButcherBot:
         for rname in self.reddits:
             sub = self.r.get_subreddit(rname)
             submissions = list(sub.get_new_by_date(limit=100, place_holder=self.config.get("DEFAULT", "last_item")))
+            #j = self.r._request(page_url="http://www.reddit.com/r/%s/new.json" % (rname), url_data={"limit":100, "before":self.config.get("DEFAULT", "last_item"), "uh":self.r.modhash})
+            #data = json.loads(j.decode("UTF-8"))
+            #submissions = data["data"]["children"]
+            #for s in submissions:
             for submission in submissions:
+                #submission = praw.objects.Submission(self.r, s["data"])
                 if submission.approved_by:
                     log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
                     continue
