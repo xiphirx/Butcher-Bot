@@ -216,7 +216,9 @@ class ButcherBot:
                 for rule in self.rules_submissions:
                     rule.apply(submission)
 
-            if len(submissions) > 0:
+            self.num_submissions = len(submissions)
+            if self.num_submissions > 0:
+                #self.config.set("DEFAULT", "last_item", "t3_"+submissions[0]["data"]["id"])
                 self.config.set("DEFAULT", "last_item", submissions[0].id)
 
             if len(self.rules_comments) > 0:
