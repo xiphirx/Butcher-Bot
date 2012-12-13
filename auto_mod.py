@@ -195,6 +195,12 @@ class ButcherBot:
                 break
 
         log(2, "%d comments to process\n" % (len(items)))
+        if len(items) == 0:
+            j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
+            data = json.loads(j.decode("UTF-8"))
+            items += data["data"]["children"]
+
+        self.num_comments = len(items)
         return items
 
 
