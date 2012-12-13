@@ -208,7 +208,7 @@ class ButcherBot:
         # main loop
         for rname in self.reddits:
             sub = self.r.get_subreddit(rname)
-            submissions = list(sub.get_new(limit=None, place_holder=self.config.get("DEFAULT", "last_item")))
+            submissions = list(sub.get_new_by_date(limit=100, place_holder=self.config.get("DEFAULT", "last_item")))
             for submission in submissions:
                 if submission.approved_by:
                     log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
