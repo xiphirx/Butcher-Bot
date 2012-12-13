@@ -11,24 +11,35 @@ Clone and create a file named 'rules.ini' and place it right next to 'auto_mod.p
 [DEFAULT]
 user = reddit_name
 pass = reddit_password
-reddits = mysubreddit1 mysubreddit1
-last_item = ronct
+user_agent = Some /r/example modbot [Butcher-Bot, PRAW; contact /u/example]
+last_item = 0
+last_comment = 0
 
 [images]
-type = url
-re = (?:\.jpg$|\.png$|\.jpeg$|\.gif$|\.bmp$|qkme\.me/|quickmeme\.com/|memegenerator\.net/|troll\.me/|memebase\.com/|knowyourmeme\.com/|9gag\.com/|funnyjunk\.com/|icanhascheezburger\.com/|cheezburger\.com/|imgur\.com/|min\.us/|imageshack\.us/|photobucket\.com/|tinypic\.com/|deviantart\.com/|flickr\.com/)
-comment = Images and memes are automatically removed from [r/Diablo](http://www.reddit.com/r/Diablo) to ensure a high-quality experience for everyone.\n\n**Please link your image again in a text-only self-post with more information about it, so people can enjoy as well as discuss the image.** An example of a self image post would include a riveting title, a link to the image inside, and a description varying from when it was taken, what it is, why you like it, and similar things.\n\nIf your image is a meme, ragecomic or something similar, you should try to post it to [r/Diablofunny](http://www.reddit.com/r/Diablofunny), where content like this is accepted and wanted. **Not specifically funny, but in general less serious content is also definitely a go for [r/Diablofunny](http://www.reddit.com/r/Diablofunny)!**\n\nThank you for your understanding, and thanks for being a member of this subreddit!
+type = image		# "image" type does some additional checking deeper than a URL regexp
+reddits = example example2
+re = (?:\.jpg$|\.png$|\.jpeg$|\.gif$|\.bmp$|quickmeme\.com/|memegenerator\.net/)
+comment = Images are prohibited here.
 distinguish = true
+actions = comment remove
 
-[acronym]
+[forbidden title words]
 type = title
-re = ^(?:DAE|Does Everyone Else|PSA|Public Service Announcement|FYI|For Your Information|Am I The Only One)
-comment = Titles containing DAE, PSA, FYI and their expansions are automatically removed from [r/Diablo](http://www.reddit.com/r/Diablo) to ensure a high-quality experience for everyone.\n\n**Please try to think another way to write down the title without using these acronyms and their expansions.** We are trying to cut down on the bandwagon effect and encourage a more healthy discussion.\n\nThank you for your understanding, and thanks for being a member of this subreddit!
+reddits = example
+re = ^(?:badword1|badword2)
+comment = Those words are too bad. They're not allowed here.
 distinguish = true
+actions = comment remove
+
+[auto-report troublesome users for manual review]
+type = comment_user
+reddits = example
+re = ^(?:baduser1|baduser2)
+comment = unused
+distinguish = unused
+actions = report
 ```
 
-* It is highly reccomended that you use a bot account (dummy account)
-
-#Module Requirements
+#Dependencies
 
 * PRAW: https://github.com/praw-dev/praw
