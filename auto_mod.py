@@ -128,6 +128,8 @@ class ButcherBot:
         self.config = configparser.SafeConfigParser()
         self.config.read("/srv/bots/Butcher-Bot/rules.ini")
 
+        self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
+
         self.reddits = set()
         self.rules = []
         for s in self.config.sections():
@@ -138,6 +140,7 @@ class ButcherBot:
                 rule = TitleRule(s)
             elif rtype == "comment_user":
                 rule = CommentUserRule(s)
+                rule.r = self.r	#FIXME do this more elegantly
             else:
                 rule = Rule(s) # This will probably cause a runtime error. Good.
             rule.re = re.compile(self.config.get(s, "re"))
@@ -152,7 +155,6 @@ class ButcherBot:
         log(3, "reddits: %s\n" % (self.reddits))
 
         # Log in
-        self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
         log(3, 'Logging in as %s...\n' % (self.config.get("DEFAULT", "user")))
         self.r.login(self.config.get("DEFAULT", "user"), self.config.get("DEFAULT", "pass"))
 
