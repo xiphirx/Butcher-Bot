@@ -1,7 +1,7 @@
 Overview
 ===================================
 
-Butcher-Bot is a moderator bot for reddit, originally developed for use on /r/diablo. It is designed to be lighter, faster, and more flexible than other available modbots.
+Butcher-Bot is a moderator bot for reddit, originally developed for use on /r/Diablo. It is designed to be lighter, faster, and more flexible than other available modbots.
 
 #Features
 
