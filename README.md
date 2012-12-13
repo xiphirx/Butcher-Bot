@@ -1,4 +1,4 @@
-Butcher Bot
+Overview
 ===================================
 
 Butcher-Bot is a moderator bot for reddit, originally developed for use on /r/diablo. It is designed to be lighter, faster, and more flexible than other available modbots.
@@ -19,7 +19,7 @@ actions currently implemented
 
 #Setup
 
-Clone and create a file named 'rules.ini' and place it right next to 'auto_mod.py'. You will then need to provide moderator credentials, the subreddit, and the last submission's id inside the file like so: 
+Clone `auto_mod.py` and create `rules.ini` in the same directory. See below for example.
 
 ```
 [DEFAULT]
