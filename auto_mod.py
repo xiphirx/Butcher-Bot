@@ -114,7 +114,7 @@ class UserRule(Rule):
 
 class CommentUserRule(CommentRule):
     def match(self, comment):
-        return self.re.search(comment["author"])
+        return self.re.search(comment["author"], re.IGNORECASE)
 
 class ButcherBot:
     class rule:
