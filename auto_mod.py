@@ -116,7 +116,7 @@ class UserRule(Rule):
 
 class CommentUserRule(CommentRule):
     def match(self, comment):
-        return self.re.search(comment["author"], re.IGNORECASE)
+        return self.re.search(comment["author"])
 
 class ButcherBot:
     class rule:
@@ -143,7 +143,7 @@ class ButcherBot:
                 rule.r = self.r	#FIXME do this more elegantly
             else:
                 rule = Rule(s) # This will probably cause a runtime error. Good.
-            rule.re = re.compile(self.config.get(s, "re"))
+            rule.re = re.compile(self.config.get(s, "re"), re.IGNORECASE)
             rule.comment = self.config.get(s, "comment").replace("\\n", "\n")
             rule.distinguish = self.config.get(s, "distinguish").lower() in ["true", "1", "t", "y", "yes", "on"]
             rule.reddits = self.config.get(s, "reddits").split()
