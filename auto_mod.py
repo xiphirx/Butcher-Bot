@@ -118,6 +118,10 @@ class CommentUserRule(CommentRule):
     def match(self, comment):
         return self.re.search(comment["author"])
 
+class CommentBodyRule(CommentRule):
+    def match(self, comment):
+        return self.re.search(comment["author"])
+
 class ButcherBot:
     class rule:
         def __init__(self):
@@ -140,6 +144,9 @@ class ButcherBot:
                 rule = TitleRule(s)
             elif rtype == "comment_user":
                 rule = CommentUserRule(s)
+                rule.r = self.r	#FIXME do this more elegantly
+            elif rtype == "comment_body":
+                rule = CommentBodyRule(s)
                 rule.r = self.r	#FIXME do this more elegantly
             else:
                 rule = Rule(s) # This will probably cause a runtime error. Good.
