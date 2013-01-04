@@ -120,7 +120,7 @@ class CommentUserRule(CommentRule):
 
 class CommentBodyRule(CommentRule):
     def match(self, comment):
-        return self.re.search(comment["author"])
+        return self.re.search(comment["body"])
 
 class ButcherBot:
     class rule:
