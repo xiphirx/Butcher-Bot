@@ -206,12 +206,12 @@ class ButcherBot:
         if len(items) == 0:
             j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
-				i = 0
-				for c in data["data"]["children"]:
-					if c["data"]["id"] >= last_comment:
-						break
-					i++
-				items += data["data"]["children"][i:]
+            i = 0
+            for c in data["data"]["children"]:
+                if c["data"]["id"] >= last_comment:
+                    break
+                i++
+            items += data["data"]["children"][i:]
 
         self.num_comments = len(items)
         return items
@@ -223,11 +223,11 @@ class ButcherBot:
             sub = self.r.get_subreddit(rname)
             last_item = self.config.get("DEFAULT", "last_item")
             submissions = list(sub.get_new_by_date(limit=100, place_holder=last_item))
-				for i in range(0, len(submissions)):
-					if submissions[i].id < last_item:
-						del submissions[i]
-					else:
-						break
+            for i in range(0, len(submissions)):
+                if submissions[i].id < last_item:
+                    del submissions[i]
+                else:
+                    break
             for submission in submissions:
                 if submission.approved_by:
                     log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
