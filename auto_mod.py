@@ -142,6 +142,8 @@ class ButcherBot:
                 rule = ImageRule(s)
             elif rtype == "title":
                 rule = TitleRule(s)
+            elif rtype == "user":
+                rule = UserRule(s)
             elif rtype == "comment_user":
                 rule = CommentUserRule(s)
                 rule.r = self.r	#FIXME do this more elegantly
