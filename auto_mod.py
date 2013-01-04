@@ -206,12 +206,7 @@ class ButcherBot:
         if len(items) == 0:
             j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
-            i = 0
-            for c in data["data"]["children"]:
-                if c["data"]["id"] >= last_comment:
-                    break
-                i++
-            items += data["data"]["children"][i:]
+            items += data["data"]["children"]
 
         self.num_comments = len(items)
         return items
