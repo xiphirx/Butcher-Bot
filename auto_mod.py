@@ -233,13 +233,16 @@ class ButcherBot:
                 self.config.set("DEFAULT", "last_item", submissions[0].id)
 
             if len(self.rules_comments) > 0:
-                coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
+                #coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
+                coms = sub.get_comments(limit=100)
+                self.num_comments = 0
                 for c in coms:
+                    self.num_comments += 1
                     for rule in self.rules_comments:
                         rule.apply(c)
 
-            if len(coms) > 0:
-                self.config.set("DEFAULT", "last_comment", coms[0]["data"]["name"])
+            #if len(coms) > 0:
+            #    self.config.set("DEFAULT", "last_comment", coms[0]["data"]["name"])
 
         self.save_config()
 
