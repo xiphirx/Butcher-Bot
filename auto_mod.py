@@ -75,8 +75,8 @@ class CommentRule(Rule):
         return "http://www.reddit.com/r/%s/comments/%s/_/%s" % (c["subreddit"], c["link_id"][3:], c["id"])
 
     def apply(self, comment):
-        if comment["subreddit"] not in self.reddits:
-            log(3, "SKIPPING %s %s\n" % (self.rname, self.make_url(comment)))
+        if comment.subreddit.display_name not in self.reddits:
+            log(3, "SKIPPING %s %s: (%s) is not in %s\n" % (self.rname, self.make_url(comment), comment.subreddit, self.reddits))
             return # Not all rules apply to all subreddits
         if self.match(comment):
             log(1, "MATCH %s: %s (%s)\n" % (self.rname, self.make_url(comment), comment["author"]))
