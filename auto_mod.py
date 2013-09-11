@@ -72,14 +72,14 @@ class CommentRule(Rule):
         self.comment_type = True
 
     def make_url(self, c):
-        return "http://www.reddit.com/r/%s/comments/%s/_/%s" % (c["subreddit"], c["link_id"][3:], c["id"])
+        return "http://www.reddit.com/r/%s/comments/%s/_/%s" % (c.subreddit, c.link_id[3:], c.id)
 
     def apply(self, comment):
         if comment.subreddit.display_name not in self.reddits:
             log(3, "SKIPPING %s %s: (%s) is not in %s\n" % (self.rname, self.make_url(comment), comment.subreddit, self.reddits))
             return # Not all rules apply to all subreddits
         if self.match(comment):
-            log(1, "MATCH %s: %s (%s)\n" % (self.rname, self.make_url(comment), comment["author"]))
+            log(1, "MATCH %s: %s (%s)\n" % (self.rname, self.make_url(comment), comment.author))
             self.do_actions(comment)
         else:
             log(3, "NO MATCH %s %s\n" % (self.rname, self.make_url(comment)))
@@ -225,7 +225,7 @@ class ButcherBot:
                     break
             for submission in submissions:
                 if submission.approved_by:
-                    log(2, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
+                    log(3, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
                     continue
                 for rule in self.rules_submissions:
                     rule.apply(submission)
