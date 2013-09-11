@@ -80,7 +80,7 @@ class CommentRule(Rule):
             return # Not all rules apply to all subreddits
         if self.match(comment):
             log(1, "MATCH %s: %s (%s)\n" % (self.rname, self.make_url(comment), comment["author"]))
-            self.do_actions(praw.objects.Comment(self.r, comment))
+            self.do_actions(comment)
         else:
             log(3, "NO MATCH %s %s\n" % (self.rname, self.make_url(comment)))
 
@@ -239,7 +239,7 @@ class ButcherBot:
                 coms = self.get_comments(rname, self.config.get("DEFAULT", "last_comment"))
                 for c in coms:
                     for rule in self.rules_comments:
-                        rule.apply(c["data"])
+                        rule.apply(c)
 
             if len(coms) > 0:
                 self.config.set("DEFAULT", "last_comment", coms[0]["data"]["name"])
