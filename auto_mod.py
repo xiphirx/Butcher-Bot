@@ -129,7 +129,7 @@ class ButcherBot:
 
     def __init__(self):
         # Load configuration
-        self.config = configparser.SafeConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read("/srv/bots/Butcher-Bot/rules.ini")
 
         self.r = praw.Reddit(user_agent=self.config.get("DEFAULT", "user_agent"))
@@ -188,7 +188,7 @@ class ButcherBot:
         done = False
         while True:
             log(3, "looping %s\n" % (n))
-            j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "before":n, "uh":self.r.modhash})
+            j = self.r._request("http://www.reddit.com/r/%s/comments.json" % (rname), data={"limit":100, "before":n, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
 
             n = data["data"]["after"]
@@ -204,7 +204,7 @@ class ButcherBot:
                 break
 
         if len(items) == 0:
-            j = self.r._request(page_url="http://www.reddit.com/r/%s/comments.json" % (rname), url_data={"limit":100, "uh":self.r.modhash})
+            j = self.r._request("http://www.reddit.com/r/%s/comments.json" % (rname), data={"limit":100, "uh":self.r.modhash})
             data = json.loads(j.decode("UTF-8"))
             items += data["data"]["children"]
 
@@ -217,7 +217,7 @@ class ButcherBot:
         for rname in self.reddits:
             sub = self.r.get_subreddit(rname)
             last_item = self.config.get("DEFAULT", "last_item")
-            submissions = list(sub.get_new_by_date(limit=100, place_holder=last_item))
+            submissions = list(sub.get_new(limit=100, place_holder=last_item))
             for i in range(0, len(submissions)):
                 if submissions[i].id < last_item:
                     del submissions[i]
