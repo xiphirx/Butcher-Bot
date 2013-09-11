@@ -218,12 +218,9 @@ class ButcherBot:
             sub = self.r.get_subreddit(rname)
             last_item = self.config.get("DEFAULT", "last_item")
             submissions = list(sub.get_new(limit=100, place_holder=last_item))
-            for i in range(0, len(submissions)):
-                if submissions[i].id < last_item:
-                    del submissions[i]
-                else:
-                    break
             for submission in submissions:
+                if submission.id < last_item:
+                    continue
                 if submission.approved_by:
                     log(3, "Post is already approved: (%s) (%s)\n" % (submission.permalink, submission.approved_by))
                     continue
