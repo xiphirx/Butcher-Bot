@@ -99,7 +99,7 @@ class ImageRule(Rule):
 			return "HEAD"
 
 	def _match(self, submission):
-		if submission.domain[:5] == "self.":
+		if submission.domain[:5] == "self." or submission.url[:4] != "http":
 			return False  # self-posts can't be images
 		if self.re.search(submission.url):
 			return True
@@ -140,7 +140,7 @@ class ButcherBot:
 
 	def __init__(self):
 		self.config = configparser.ConfigParser()
-		self.config.read("/srv/bots/Butcher-Bot/rules.ini")
+		self.config.read("/home/xiphirx/bots/Butcher-Bot/rules.ini")
 
 		self.r = lightreddit.RedditSession(self.config.get("DEFAULT", "user"), self.config.get("DEFAULT", "pass"), self.config.get("DEFAULT", "user_agent"))
 
@@ -187,7 +187,7 @@ class ButcherBot:
 
 	def _save_config(self):
 		"""Write state information to the config file"""
-		with open("/srv/bots/Butcher-Bot/rules.ini", "w") as fname:
+		with open("/home/xiphirx/bots/Butcher-Bot/rules.ini", "w") as fname:
 			self.config.write(fname)
 
 	def auto_mod(self):
@@ -225,7 +225,7 @@ class ButcherBot:
 def main():
 	"""entry point for standalone bot"""
 	global logfile
-	logfile = open("/srv/bots/log/butcher.log", "ab")
+	logfile = open("/home/xiphirx/bots/log/butcher.log", "ab")
 	start_time = time.time()
 	butcher = ButcherBot()
 	butcher.auto_mod()
