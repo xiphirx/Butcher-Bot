@@ -4,6 +4,7 @@ import lightreddit
 import urllib.error
 import urllib.parse
 import urllib.request
+import http.client
 import re
 import configparser
 import time
@@ -112,6 +113,8 @@ class ImageRule(Rule):
 		except urllib.error.HTTPError:
 			pass #If HTTP error, assume it's not an image. FIXME?
 		except urllib.error.URLError:
+			pass
+		except http.client.BadStatusLine:
 			pass
 		return False
 
